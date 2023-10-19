@@ -11,7 +11,8 @@ class Home {
 
         echo View::render("pages/home", [
             "head" => Head::render(),
-            "siteName" => SITE_NAME
+            "siteName" => SITE_NAME,
+            "urlBase" => URL_BASE,
         ]);
 
     }

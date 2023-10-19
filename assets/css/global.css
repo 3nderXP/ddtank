@@ -4,3 +4,44 @@
     box-sizing: border-box;
     font-family: Arial, Helvetica, sans-serif;
 }
+
+body {
+    background-color: #101010;
+    color: #ffffff;
+}
+
+:root {
+    --theme-color: #0088ff;
+    --radius-cylinder: 99999999px;
+}
+
+header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 40px;
+    padding: 40px;
+    min-height: 100vh;
+    text-align: center;
+}
+
+header .title {
+    font-size: 42pt;
+}
+
+header .description {
+    font-size: 14pt;
+    width: 50%;
+}
+
+header .button {
+    font-size: 24pt;
+    text-decoration: none;
+    color: #ffffff;
+    background-color: #0088ff;
+    padding: 20px 60px;
+    border-radius: var(--radius-cylinder);
+    width: max-content;
+    box-shadow: 0 30px 60px rgb(0, 0, 0, .3);
+}

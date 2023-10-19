@@ -16,6 +16,8 @@ class Head {
             "lang" => SITE_LANG,
             "links" => self::getLinks(isset($params["links"]) ? $params["links"] : []),
             "scripts" => self::getScripts(isset($params["scripts"]) ? $params["scripts"] : []),
+            "urlBase" => URL_BASE,
+            "version" => VERSION,
         ]);
         
     }
@@ -23,7 +25,7 @@ class Head {
     private static function getLinks(array $links = []) {
 
         $defaultLinks = [
-            ["rel" => "stylesheet", "src" => URL_BASE."/assets/css/global.css"]
+            ["rel" => "stylesheet", "href" => URL_BASE."/assets/css/global.css"]
         ];
 
         return Links::render(array_merge($defaultLinks, $links));

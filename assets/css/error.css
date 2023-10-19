@@ -1,0 +1,21 @@
+body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 40px;
+    text-align: center;
+    min-height: 100vh;
+}
+
+.error-code {
+    font-size: 42pt;
+}
+
+.details {
+    font-size: 14pt;
+}
+
+a {
+    color: var(--theme-color);
+}

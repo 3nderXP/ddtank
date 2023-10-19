@@ -10,3 +10,5 @@ define("URL_BASE", SITE_PROTOCOL.SITE_DOMAIN.SITE_ROOT);
 
 define("SITE_NAME", "Project of Routes");
 define("SITE_LANG", "pt-BR");
+
+define("VERSION", "0.2.0");

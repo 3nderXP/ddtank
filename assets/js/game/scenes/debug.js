@@ -10,9 +10,17 @@ export default class Debug extends Phaser.Scene {
 
     }
 
-    init() {}
+    init() {
+
+        this.scene.launch('HUD')
+
+    }
 
     preload () {
+
+        this.load.image('spr_grass', `${URL_BASE}/assets/img/sprites/platforms/grass.png`)
+
+        this.load.image('spr_wp_square', `${URL_BASE}/assets/img/sprites/weapons/square.png`)
 
         this.load.image('spr_player', `${URL_BASE}/assets/img/sprites/player.png`)
 
@@ -24,9 +32,7 @@ export default class Debug extends Phaser.Scene {
 
         this.platforms = this.physics.add.staticGroup()
 
-        const mainPlatform = this.add.rectangle(gameWidth / 2, gameHeight, gameWidth, 50, 0x00eeee)
-
-        mainPlatform.setOrigin(.5, 1)
+        const mainPlatform = this.add.nineslice(gameWidth / 2, gameHeight, 'spr_grass', null, gameWidth, 100, 13, 13, 33, 12)
 
         this.platforms.addMultiple([
             mainPlatform
@@ -39,6 +45,7 @@ export default class Debug extends Phaser.Scene {
 
         this.physics.add.collider(this.player, this.platforms)
 
+        this.cameras.main.setBounds(-20, 0, gameWidth + 40, mainPlatform.getBottomCenter().y)
         this.cameras.main.startFollow(this.player)
 
     }

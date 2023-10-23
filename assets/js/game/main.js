@@ -1,4 +1,5 @@
 import Debug from "./scenes/debug.js"
+import HUD from "./scenes/hud.js"
 
 const Game = new Phaser.Game({
     type: Phaser.AUTO,
@@ -16,7 +17,8 @@ const Game = new Phaser.Game({
     disableContextMenu: true,
     gameTitle: 'DDTank Paraguai',
     scene: [
-        new Debug
+        new Debug,
+        new HUD,
     ],
     physics: {
         default: 'arcade',

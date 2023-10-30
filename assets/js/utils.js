@@ -20,7 +20,7 @@ const toUpperCaseFirst = (string) => {
 
     } catch (Error) {
 
-        console.log(Error.message)
+        console.error(Error.message)
 
     }
     
@@ -59,7 +59,43 @@ const toCamelCase = function (string, separator = ' ') {
 
     } catch (Error) {
     
-        console.log(Error.message)
+        console.error(Error.message)
+    
+    }
+
+}
+
+const toSnakeCase = function (string, separator = ' ', isCamel = false) {
+
+    try {
+
+        if(Array.from(arguments).every((param) => {typeof param == 'string' && param != ''})){
+    
+            throw new Error('Parameters are invalid or empty')
+    
+        }
+   
+        if(isCamel){
+
+            separator = ''
+
+        }
+        
+        return string.replaceAll(/\s+/g, separator).split(separator).map((word, index) => {
+            
+            if(index > 0 && (isCamel && word == word.toUpperCase())){
+
+                word = `_${word}`
+
+            }
+            
+            return word
+
+        }).join('').toLowerCase()
+
+    } catch (Error) {
+    
+        console.error(Error.message)
     
     }
 
@@ -360,6 +396,7 @@ export default {
     toIframeSrc,
     toUpperCaseFirst,
     toCamelCase,
+    toSnakeCase,
     toHTML,
     objIndexOf,
     shuffle,

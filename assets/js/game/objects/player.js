@@ -3,18 +3,20 @@ import Weapon from './weapons/square.js'
 
 export default class Player extends Phaser.Physics.Arcade.Sprite {
 
-    hudScene
+    hud
 
-    constructor(scene) {
+    constructor(scene, x = 0, y = 0) {
 
-        super(scene, 0, 0, 'spr_player')
+        super(scene, x, y, 'spr_player')
 
         this.scene.add.existing(this)
         this.scene.physics.add.existing(this)
 
-        this.hudScene = this.scene.scene.get('HUD')
+        this.hud = this.scene.scene.get('HUD')
 
-        this.setScale(Utils.getProportionalScale(this.width, 64))
+        this.setOrigin(.5, 1)
+        this.setDisplaySize(64, 32)
+        // this.setScale(Utils.getProportionalScale(this.width, 64))
 
         this.setData({
             health: {
@@ -32,58 +34,100 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
             },
             velocity: 50,
             gravity: 300,
-            strength: 0,
+            strength: {
+                value: 0,
+                status: 'idle',
+                setStatus: function(status) {
+
+                    try {
+
+                        const possibleStatus = [
+                            'idle',
+                            'started',
+                            'ended'
+                        ]
+
+                        if(!possibleStatus.includes(status)) {
+
+                            throw new Error(`O status ${status} não é aceito`)
+
+                        }
+
+                        this.status = status
+                         
+                    } catch(e) {
+
+                        console.log(e.message)
+
+                    }
+
+                }
+            },
             angle: 45,
             bag: {
                 equipments: {
-                    weapon: new Weapon(scene, this.x, this.x),
+                    weapon: new Weapon(scene, this.x, this.y),
+                },
+            },
+            controls: {
+                keyboard: {
+                    space: () => {
+
+                        // Ao pressionar
+            
+                        if(this.data.values.strength.status == 'ended' && this.data.values.strength.value <= 0) {
+            
+                            this.data.values.strength.setStatus('idle')
+                            this.data.values.atackStatus = false
+            
+                            return
+            
+                        }
+            
+                        this.data.values.strength.value += this.data.values.strength.status != 'ended' ? .5 : -.5
+            
+                        this.data.values.strength.setStatus((this.data.values.strength.value != 100) ? 'started' : 'ended')
+                        
+                        this.hud.strength.setPercentage(this.data.values.strength.value)
+
+                        // Ao soltar a tecla
+
+                        this.scene.input.keyboard.off('keyup-SPACE')
+                        this.scene.input.keyboard.on('keyup-SPACE', (event) => {
+
+                            if(this.data.values.atackStatus){
+
+                                return
+                                
+                            }
+                            
+                            this.attack(this.data.values.angle, this.data.values.strength.value)
+                            
+                            this.data.values.attackStatus = true
+                            this.data.values.strength.value = 0
+
+                        })
+    
+                    },
                 }
             }
         })
 
         this.setGravityY(this.data.values.gravity)
 
-        this.scene.input.keyboard.on('keydown', (event) => {
-
-            if(event.code != 'Space'){
-
-                return
-                
-            }
-
-            this.data.values.strength += 1
-            this.data.values.atackStatus = true
-
-        })
-
-        this.scene.input.keyboard.on('keyup', (event) => {
-
-            if(event.code != 'Space' && !this.data.values.atackStatus){
-
-                return
-                
-            }
-            
-            this.attack(this.data.values.angle, this.data.values.strength)
-            
-            this.data.values.atackStatus = false
-            this.data.values.strength = 0
-
-        })
-
     }
 
     attack(angle, strength) {
 
-        console.log(angle, strength)
+        const { bag } = this.data.values
 
-        const weaponToThrown = new Weapon(this.scene, this.x, this.y)
+        const weaponToThrown = new Weapon(this.scene, bag.equipments.weapon.x, bag.equipments.weapon.y)
 
-        const velocityX = 1000 * (strength / 100);
-        const velocityY = (1000 * (strength / 100)) * Math.sin(angle);
+        const velocityX = 1000 * (strength / 100)
+        const velocityY = (1000 * (strength / 100)) * Math.sin(angle)
     
         weaponToThrown.setGravityY(300)
-        weaponToThrown.setVelocity(velocityX * (this.flipX ? -1 : 1), -velocityY);
+        weaponToThrown.setVelocity(velocityX * (this.flipX ? -1 : 1), -velocityY)
 
         this.scene.physics.add.collider(weaponToThrown, this.scene.platforms, (weapon, platform) => {
             
@@ -94,8 +138,11 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
     }
 
     update() {
+        
+        const { bag, controls, health } = this.data.values
 
-        if(!this.active || this.data.values.health.current <= 0){
+
+        if(!this.active || health.current <= 0){
 
             return
 
@@ -103,24 +150,39 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
 
         this.move()
 
-        this.data.values.bag.equipments.weapon.setPosition(this.x, this.y)
+        bag.equipments.weapon.setPosition(this.x, this.getTopCenter().y)
+
+        Object.keys(controls.keyboard).forEach((key) => {
+
+            const keyCode = Utils.toSnakeCase(key, '', true).toUpperCase()
+            const event = controls.keyboard[key]
+
+            if(this.scene.input.keyboard.checkDown(this.scene.input.keyboard.addKey(keyCode))){
+
+                event()
+
+            }
+
+        })
 
     }
 
     move() {
 
-        if(!this.data.values.canMove){
+        const { canMove, keysToMove, velocity } = this.data.values
+
+        if(!canMove){
 
             return
 
         }
 
-        const leftIsDown = this.data.values.keysToMove.left.filter(key => this.scene.input.keyboard.checkDown(this.scene.input.keyboard.addKey(key)))[0]
-        const rightIsDown = this.data.values.keysToMove.right.filter(key => this.scene.input.keyboard.checkDown(this.scene.input.keyboard.addKey(key)))[0]
+        const leftIsDown = keysToMove.left.filter(key => this.scene.input.keyboard.checkDown(this.scene.input.keyboard.addKey(key)))[0]
+        const rightIsDown = keysToMove.right.filter(key => this.scene.input.keyboard.checkDown(this.scene.input.keyboard.addKey(key)))[0]
 
         const horizontalMove = -Number(Boolean(leftIsDown)) + Number(Boolean(rightIsDown))
 
-        this.setVelocityX(this.data.values.velocity * horizontalMove)
+        this.setVelocityX(velocity * horizontalMove)
 
         this.setFlipX(horizontalMove != 0 ? (horizontalMove == 1 ? false : true) : this.flipX)
 

@@ -5,7 +5,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
 
     hud
 
-    constructor(scene, x = 0, y = 0) {
+    constructor(scene, x = 0, y = 0, id = null) {
 
         super(scene, x, y, 'spr_player')
 
@@ -19,6 +19,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         // this.setScale(Utils.getProportionalScale(this.width, 64))
 
         this.setData({
+            id: id,
             health: {
                 max: 100,
                 current: 100
@@ -63,7 +64,10 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
 
                 }
             },
-            angle: 45,
+            angle: {
+                value: 45,
+                obj: this.scene.add.rectangle(this.x, this.y, 70, 2, 0xfff000, .7)
+            },
             bag: {
                 equipments: {
                     weapon: new Weapon(scene, this.x, this.y),
@@ -71,6 +75,16 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
             },
             controls: {
                 keyboard: {
+                    up: () => {
+
+                        this.changeAngle('up')
+                        
+                    },
+                    down: () => {
+
+                        this.changeAngle('down')
+
+                    },
                     space: () => {
 
                         // Ao pressionar
@@ -101,7 +115,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
                                 
                             }
                             
-                            this.attack(this.data.values.angle, this.data.values.strength.value)
+                            this.attack(this.data.values.angle.value, this.data.values.strength.value)
                             
                             this.data.values.attackStatus = true
                             this.data.values.strength.value = 0
@@ -117,17 +131,27 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
 
     }
 
+    changeAngle(dir) {
+
+        this.data.values.angle.value += (dir == 'up') ? 1 : -1
+        
+    }
+
     attack(angle, strength) {
 
         const { bag } = this.data.values
 
         const weaponToThrown = new Weapon(this.scene, bag.equipments.weapon.x, bag.equipments.weapon.y)
 
+        weaponToThrown.setFlipX(this.flipX)
+
         const velocityX = 1000 * (strength / 100)
         const velocityY = (1000 * (strength / 100)) * Math.sin(angle)
     
         weaponToThrown.setGravityY(300)
         weaponToThrown.setVelocity(velocityX * (this.flipX ? -1 : 1), -velocityY)
+
+        weaponToThrown.startThrow()
 
         this.scene.physics.add.collider(weaponToThrown, this.scene.platforms, (weapon, platform) => {
             
@@ -139,8 +163,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
 
     update() {
         
-        const { bag, controls, health } = this.data.values
-
+        const { id, bag, controls, health, angle } = this.data.values
 
         if(!this.active || health.current <= 0){
 
@@ -151,6 +174,27 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         this.move()
 
         bag.equipments.weapon.setPosition(this.x, this.getTopCenter().y)
+        bag.equipments.weapon.setFlipX(this.flipX)
+
+        if(id != 1){
+
+            angle.obj.setVisible(false)
+
+        }
+
+        if(this.flipX){
+
+            angle.obj.setOrigin(1, .5)
+            angle.obj.setPosition(this.x - 20, this.getTopCenter().y - 20)
+            angle.obj.setAngle(angle.value)
+
+        } else {
+            
+            angle.obj.setOrigin(0, .5)
+            angle.obj.setPosition(this.x + 20, this.getTopCenter().y - 20)
+            angle.obj.setAngle(-angle.value)
+
+        }
 
         Object.keys(controls.keyboard).forEach((key) => {
 
@@ -169,7 +213,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
 
     move() {
 
-        const { canMove, keysToMove, velocity } = this.data.values
+        const { id, canMove, keysToMove, velocity } = this.data.values
 
         if(!canMove){
 

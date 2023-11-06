@@ -4,7 +4,7 @@ import Utils from '../../utils.js'
 export default class Debug extends Phaser.Scene {
 
     players = []
-    currentTurn
+    currentTurn = 0
     platforms
 
     constructor() {
@@ -47,9 +47,13 @@ export default class Debug extends Phaser.Scene {
 
         this.cameras.main.setBounds(-20, 0, gameWidth + 40, mainPlatform.getBottomCenter().y)
 
-        this.currentTurn = 0
-
         this.changeTurn(this.currentTurn)
+
+        this.input.keyboard.on('keydown-P', () => {
+
+            this.skipTurn()
+
+        })
 
     }
 
@@ -57,8 +61,9 @@ export default class Debug extends Phaser.Scene {
 
         if(this.players.length > 0){
 
-            this.players.forEach((player) => {
+            this.players.forEach((player, index) => {
 
+                player.data.values.canMove = this.currentTurn == index
                 player.update()
          
             })
@@ -75,6 +80,10 @@ export default class Debug extends Phaser.Scene {
 
     skipTurn() {
 
+        this.currentTurn = (this.currentTurn < (this.players.length - 1)) ? this.currentTurn + 1 : 0
+        
+        this.changeTurn(this.currentTurn)
+
     }
 
     connectPlayers(quantity) {
@@ -83,7 +92,7 @@ export default class Debug extends Phaser.Scene {
 
             const platform = this.platforms.children.entries[Utils.rand(0, this.platforms.children.size - 1)]
 
-            const player = new Player(this, 0, 0)
+            const player = new Player(this, 0, 0, this.players.length + 1)
             
             player.x = Utils.rand(platform.getLeftCenter().x, platform.getRightCenter().x)
             player.y = platform.getTopCenter().y
@@ -101,6 +110,7 @@ export default class Debug extends Phaser.Scene {
             this.physics.add.collider(this.players, this.platforms)
 
             this.players.push(player)
+            this.players = Utils.shuffle(this.players)
             
         }
 

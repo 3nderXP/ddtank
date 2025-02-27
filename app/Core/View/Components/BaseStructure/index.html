@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="{{lang}}">
+<head>
+
+    <!-- General Meta Tags -->
+    <title>{{title}}</title>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="{{description}}">
+    <meta name="theme-color" content="{{themeColor}}">
+    <meta name="keywords" content="{{keywords}}">
+
+    <!-- Facebook Meta Tags -->
+    <meta property="og:site_name" content="{{siteName}}">
+    <meta property="og:url" content="{{url}}">
+    <meta property="og:type" content="{{type}}">
+    <meta property="og:title" content="{{title}}">
+    <meta property="og:description" content="{{description}}">
+    <meta property="og:image" content="{{image}}">
+
+    <!-- Twitter Meta Tags -->
+    <meta name="twitter:card" content="{{cardSummary}}">
+    <meta property="twitter:domain" content="{{domain}}">
+    <meta property="twitter:url" content="{{url}}">
+    <meta name="twitter:title" content="{{title}}">
+    <meta name="twitter:description" content="{{description}}">
+    <meta name="twitter:image" content="{{image}}">
+
+    <link rel="shortcut icon" href="{{urlBase}}/assets/img/logo.png">
+
+    {{links}}
+
+    <script>
+        const URL_BASE = '{{urlBase}}'
+    </script>
+
+    {{scripts}}
+    
+</head>
+<body>
+    {{content}}
+</body>
+</html>

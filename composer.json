@@ -6,8 +6,5 @@
         "files": [
             "./app/config.php"
         ]
-    },
-    "require": {
-        "coffeecode/router": "^2.0"
     }
 }
